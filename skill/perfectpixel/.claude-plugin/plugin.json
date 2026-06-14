@@ -1,0 +1,11 @@
+{
+  "name": "perfectpixel",
+  "description": "AI 애니메이션 스프라이트 생성 — 텍스트 한 줄로 캐릭터 + 동작 애니메이션(100여 종) + 8방향 세트를 만들고 게임 엔진용 번들(스프라이트시트 · manifest · Aseprite JSON · GIF/APNG · 프레임)로 내보냅니다.",
+  "version": "1.0.0",
+  "author": {
+    "name": "gykim80"
+  },
+  "homepage": "https://github.com/gykim80/perfectpixel-studio",
+  "license": "MIT",
+  "keywords": ["sprite", "pixel-art", "game", "animation", "spritesheet", "aseprite"]
+}

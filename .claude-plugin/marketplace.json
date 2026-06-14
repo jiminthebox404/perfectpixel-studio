@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "perfectpixel-studio",
+  "description": "PerfectPixel — AI 기반 애니메이션 스프라이트 생성 스튜디오. 설치형 앱과 동일한 파이프라인을 스킬로 제공합니다.",
+  "owner": {
+    "name": "gykim80"
+  },
+  "plugins": [
+    {
+      "name": "perfectpixel",
+      "description": "텍스트 설명 한 줄로 캐릭터 + 동작 애니메이션 + 8방향 스프라이트 세트를 생성하고 게임 엔진용 번들로 내보내는 스킬.",
+      "source": "./skill/perfectpixel",
+      "category": "development",
+      "homepage": "https://github.com/gykim80/perfectpixel-studio"
+    }
+  ]
+}
