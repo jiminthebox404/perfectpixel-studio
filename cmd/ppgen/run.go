@@ -146,7 +146,7 @@ func runTurnaround(ctx context.Context, p gen.Provider, opt options, style strin
 		}
 	}
 	// 뷰 세트 선택: cardinal(정/우/후/좌) 또는 diagonal(¾ 4뷰).
-	order := "from left to right: 1) FRONT view, 2) RIGHT-side profile, 3) BACK view seen from directly behind (back of the head and horns, NO face and NO eyes, the occult rune on the upper back), 4) LEFT-side profile"
+	order := "from left to right, a real 3D rotation of the SAME creature where each pose is a genuinely different camera angle, NEVER a copy or a horizontal flip of another pose: 1) FRONT view facing the viewer, 2) RIGHT-side profile (turned 90 degrees, we see the creature's right side), 3) BACK view seen from directly behind, rotated a FULL 180 degrees from the front — the back of the head and horns, NO face and NO eyes, the occult rune on the upper back; because the camera has moved around behind the creature, left and right are SWAPPED relative to the front (whatever was on the viewer's LEFT in the front is now on the viewer's RIGHT and vice versa), and any held object is on the OPPOSITE side from the front and must NOT stay on the same side as the front, 4) LEFT-side profile (turned 90 degrees the other way, we see the creature's left side)"
 	names := []string{"front", "right", "back", "left"}
 	if opt.turnSet == "diagonal" {
 		order = "from left to right, FOUR DISTINCT three-quarter angles (the two back views are mirror images of each other, NOT identical, and both clearly different from a straight-on back view): 1) FRONT-LEFT three-quarter view (rotated about 45°: the face is visible AND we see more of the creature's LEFT side and left shoulder), 2) FRONT-RIGHT three-quarter view (rotated about 45° the other way: face visible AND we see more of the creature's RIGHT side and right shoulder), 3) BACK-LEFT three-quarter view (rotated about 135°: the BACK and the occult rune on the upper back are visible with NO face, AND we see more of the creature's LEFT side and left shoulder), 4) BACK-RIGHT three-quarter view (rotated about 135° the other way: BACK and rune visible with NO face, AND we see more of the creature's RIGHT side and right shoulder)"
@@ -224,12 +224,11 @@ func buildHandednessClause(item, hand, turnSet string) string {
 		return ""
 	}
 	if hand == "both" {
-		return fmt.Sprintf("The creature cradles %s in BOTH hands at the center of its chest — symmetric and the same in every view; fully visible from the front and front-three-quarter views, and partly behind the body from behind.", item)
+		return fmt.Sprintf("The creature holds %s in both hands at the center of its chest, identical in every view — fully visible from the front, partly behind the body from behind.", item)
 	}
 	if hand != "left" && hand != "right" {
 		return ""
 	}
-	core := fmt.Sprintf("The %s is ALWAYS held in the creature's %s hand and NEVER switches hands; when that hand faces away from the viewer the %s is partly hidden behind the body, never moved to the other hand.", item, hand, item)
 	frontSide, backSide := "left", "right"
 	nearProfile, farProfile := "RIGHT", "LEFT"
 	if hand == "left" {
@@ -237,10 +236,10 @@ func buildHandednessClause(item, hand, turnSet string) string {
 		nearProfile, farProfile = "LEFT", "RIGHT"
 	}
 	if turnSet == "diagonal" {
-		return core + fmt.Sprintf(" In the two front-facing three-quarter views the %s hand is toward the viewer so the %s is visible; in the two back-facing three-quarter views that hand is on the far side so the %s is mostly hidden behind the body.", hand, item, item)
+		return fmt.Sprintf("The creature holds %s in its %s hand in every view, never the other hand. In the two front-facing three-quarter views that hand is toward the viewer so it is visible; in the two back-facing views it is on the far side and mostly hidden behind the body.", item, hand)
 	}
-	return core + fmt.Sprintf(" FRONT view: the %s is on the viewer's %s. %s-side view: the %s hand is nearest the viewer, the %s held forward and fully visible. BACK view: the %s is on the viewer's %s (horizontal flip of the front). %s-side view: the %s hand is on the far side, so the %s is hidden behind the body and the near hand is empty.",
-		item, frontSide, nearProfile, hand, item, item, backSide, farProfile, hand, item)
+	return fmt.Sprintf("The creature holds %s in its %s hand in every view — always the same hand, never switched. Front view: it is on the viewer's %s. %s-side view: that hand faces the viewer so it is fully visible. Back view: it is on the viewer's %s. %s-side view: that hand is on the far side so it is hidden behind the body and the near hand is empty.",
+		item, hand, frontSide, nearProfile, backSide, farProfile)
 }
 
 // genDirectionSet은 5방향 AI 생성 + 3방향 미러링으로 8방향 세트를 만듭니다.
