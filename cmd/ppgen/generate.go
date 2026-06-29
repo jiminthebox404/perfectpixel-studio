@@ -145,9 +145,17 @@ func genState(ctx context.Context, p gen.Provider, opt options, style string,
 		}
 		bgKey := sprite.DetectBackground(nimg)
 		clean := sprite.RemoveBackground(nimg)
-		ext := sprite.ExtractFrames(clean, expected, 256, 256, 24)
+		cellW, cellH, margin := 256, 256, 24
+		if opt.noPixel {
+			// 풀디테일: 원본 셀 해상도 유지(다운스케일·양자화 없이)
+			cellW = clean.Rect.Dx()/expected + margin*2
+			cellH = clean.Rect.Dy() + margin*2
+		}
+		ext := sprite.ExtractFrames(clean, expected, cellW, cellH, margin)
 		insp := sprite.InspectFrames(ext.Frames, bgKey, baseN)
-		sprite.PixelPostProcess(ext.Frames, palette)
+		if !opt.noPixel {
+			sprite.PixelPostProcess(ext.Frames, palette)
+		}
 
 		cand := stateResult{
 			Name: spec.Name, Expected: expected, Found: ext.Found, Attempts: attempt,
