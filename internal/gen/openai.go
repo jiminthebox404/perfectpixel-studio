@@ -89,7 +89,7 @@ func (c *OpenAI) GenerateImage(ctx context.Context, prompt string, refImages [][
 			Prompt:       fullPrompt,
 			N:            1,
 			Size:         size,
-			Quality:      "medium",
+			Quality:      "low",
 			OutputFormat: "png",
 		})
 		contentType = "application/json"
@@ -135,7 +135,7 @@ func (c *OpenAI) buildEditBody(prompt string, refImages [][]byte, size string) (
 		"prompt":        prompt,
 		"n":             "1",
 		"size":          size,
-		"quality":       "medium",
+		"quality":       "low",
 		"output_format": "png",
 	}
 	for k, v := range fields {

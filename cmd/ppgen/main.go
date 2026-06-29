@@ -27,21 +27,28 @@ import (
 
 // options는 CLI 플래그를 묶은 실행 옵션입니다.
 type options struct {
-	desc     string
-	style    string
-	states   string
-	percat   int
-	all      bool
-	dirset   string
-	out      string
-	provider string
-	key      string
-	model    string
-	attempts int
-	timeout  time.Duration
-	jsonOut  bool
-	quiet    bool
-	baseOnly bool
+	desc       string
+	style      string
+	states     string
+	percat     int
+	all        bool
+	dirset     string
+	out        string
+	provider   string
+	key        string
+	model      string
+	attempts   int
+	timeout    time.Duration
+	jsonOut    bool
+	quiet      bool
+	baseOnly   bool
+	base       string
+	noMirror   bool
+	turnaround int
+	turnSet    string
+	noPixel    bool
+	item       string
+	hand       string
 }
 
 func main() {
@@ -64,6 +71,13 @@ func main() {
 	flag.BoolVar(&opt.jsonOut, "json", false, "사람이 읽는 로그 대신 결과 요약 JSON만 stdout에 출력")
 	flag.BoolVar(&opt.quiet, "quiet", false, "진행 로그 억제 (-json과 함께 쓰기 좋음)")
 	flag.BoolVar(&opt.baseOnly, "baseonly", false, "베이스 캐릭터(base.png)만 생성하고 상태/번들은 건너뜀")
+	flag.StringVar(&opt.base, "base", "", "기존 base.png 경로 (지정 시 생성 대신 로드 — 단일 base 앵커)")
+	flag.BoolVar(&opt.noMirror, "nomirror", false, "8방향 전부 AI 생성 (미러링 끄기 — 손에 든 것 등 비대칭 chirality 보존)")
+	flag.IntVar(&opt.turnaround, "turnaround", 0, "턴어라운드 시트 모드: N개 뷰(앞→뒤)를 한 이미지로 생성 후 분할")
+	flag.StringVar(&opt.turnSet, "turnset", "cardinal", "턴어라운드 뷰 세트: cardinal(정·우·후·좌) | diagonal(앞우·뒤우·뒤좌·앞좌 ¾)")
+	flag.BoolVar(&opt.noPixel, "nopixel", false, "픽셀화/양자화 끄기 — matte+분할만, 원본 셀 해상도 유지 (일러스트 풀디테일 방향)")
+	flag.StringVar(&opt.item, "item", "", "손에 든 것 슬롯 (예: \"a glowing orb\") — 비우면 손 절 없음")
+	flag.StringVar(&opt.hand, "hand", "", "든 손: right|left|both (item과 함께; 뷰별 위치 자동 생성)")
 	flag.Parse()
 
 	if *dump {

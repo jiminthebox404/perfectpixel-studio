@@ -82,12 +82,31 @@ func generateBase(ctx context.Context, p gen.Provider, desc, styleKey, style str
 		return nil, nil, err
 	}
 	clean := sprite.RemoveBackground(img)
-	if palette := sprite.PaletteSizeForStyle(styleKey); palette > 0 {
+	if paletteSize := sprite.PaletteSizeForStyle(styleKey); paletteSize > 0 {
+		// 개체 전역 톤 일관: base에서 팔레트를 만들어 락 → 이후 모든 상태가 같은 팔레트 사용
+		sprite.LockPalette(sprite.BuildSharedPalette([]*image.NRGBA{clean}, paletteSize))
 		single := []*image.NRGBA{clean}
-		sprite.PixelPostProcess(single, palette)
+		sprite.PixelPostProcess(single, paletteSize)
 		clean = single[0]
 	}
 	return clean, pngBytes(clean), nil
+}
+
+// loadBaseFromFile은 기존 base.png를 로드해 (생성 대신) 단일 base 앵커로 씁니다.
+// 이미 배경 제거·픽셀화된 파일을 가정하고, 팔레트만 락합니다.
+func loadBaseFromFile(path, styleKey string) (*image.NRGBA, []byte, error) {
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	img, err := decodeImg(raw)
+	if err != nil {
+		return nil, nil, err
+	}
+	if paletteSize := sprite.PaletteSizeForStyle(styleKey); paletteSize > 0 {
+		sprite.LockPalette(sprite.BuildSharedPalette([]*image.NRGBA{img}, paletteSize))
+	}
+	return img, pngBytes(img), nil
 }
 
 // genState는 앱과 동일한 자동 재시도 품질 보정 루프로 한 상태를 생성합니다.
@@ -109,6 +128,9 @@ func genState(ctx context.Context, p gen.Provider, opt options, style string,
 
 	for attempt := 1; attempt <= maxAttempts; attempt++ {
 		prompt := sprite.BuildStripPrompt(opt.desc, style, spec, feedback)
+		if sprite.IsBackFacing(spec.Facing) {
+			prompt += " This is a REAR view: show the BACK of the character (back of the head and horns, back of the body/robe), with NO face and NO eyes visible; the occult rune on the upper back IS visible. The attached reference image shows the FRONT, for identity/colors only — do NOT copy the front, render the back."
+		}
 		if len(refs) > 1 {
 			prompt += "\nMotion reference: the second attached image is the FRONT-view animation strip of this same character performing this exact action. Reproduce the same motion timing and pose phases frame by frame, but viewed from the required facing direction above.\n"
 		}

@@ -138,13 +138,27 @@ func PaletteSizeForStyle(styleKey string) int {
 	}
 }
 
+// lockedPalette가 설정되면 PixelPostProcess는 새 팔레트를 추정하지 않고 이걸 재사용합니다.
+// 개체 전역 톤 일관 — base에서 한 번 만들어 락하면 모든 상태가 같은 색을 쓴다.
+// set-once-read-many: generateBase에서 1회 설정 후 읽기만 → 순차/병렬 모두 안전.
+var lockedPalette []rgb
+
+// LockPalette은 이후 모든 PixelPostProcess가 사용할 전역 공유 팔레트를 설정합니다.
+func LockPalette(p []rgb) { lockedPalette = p }
+
+// UnlockPalette은 전역 팔레트 락을 해제합니다(상태별 추정으로 복귀).
+func UnlockPalette() { lockedPalette = nil }
+
 // PixelPostProcess는 한 상태의 프레임 묶음에 공유 팔레트 양자화 + 픽셀 그리드 스냅을 적용합니다.
-// 프레임들은 in-place로 수정되거나 교체됩니다.
+// 프레임들은 in-place로 수정되거나 교체됩니다. lockedPalette가 있으면 그것을 우선 사용합니다.
 func PixelPostProcess(frames []*image.NRGBA, paletteSize int) {
 	if paletteSize <= 0 || len(frames) == 0 {
 		return
 	}
-	palette := BuildSharedPalette(frames, paletteSize)
+	palette := lockedPalette
+	if palette == nil {
+		palette = BuildSharedPalette(frames, paletteSize)
+	}
 	if palette == nil {
 		return
 	}
